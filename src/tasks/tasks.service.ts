@@ -11,7 +11,6 @@ export class TasksService {
   ];
 
   findAll() {
-    console.log(this);
     return this.tasks;
   }
 }
