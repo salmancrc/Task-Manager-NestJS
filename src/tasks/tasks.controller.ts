@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -26,5 +27,10 @@ export class TasksController {
   @Post()
   create(@Body() body: Task) {
     return this.taskService.create(body);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.taskService.remove(id);
   }
 }

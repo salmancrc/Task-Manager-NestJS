@@ -28,6 +28,12 @@ export class TasksService {
     return task;
   }
 
+  remove(id: number) {
+    const task = this.findOne(id);
+    this.tasks = this.tasks.filter((t) => t.id !== id);
+    return task;
+  }
+
   create(task: Task) {
     this.tasks.push(task);
     return task;
