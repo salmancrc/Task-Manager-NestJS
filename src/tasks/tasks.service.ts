@@ -28,14 +28,22 @@ export class TasksService {
     return task;
   }
 
-  remove(id: number) {
-    const task = this.findOne(id);
-    this.tasks = this.tasks.filter((t) => t.id !== id);
+  create(task: Task) {
+    this.tasks.push(task);
     return task;
   }
 
-  create(task: Task) {
-    this.tasks.push(task);
+  update(id: number, updateTask: Partial<Task>): Task {
+    const task = this.findOne(id);
+    console.log('updateTask: ', updateTask);
+    console.log('task: ', task);
+    Object.assign(task, updateTask);
+    return task;
+  }
+
+  remove(id: number) {
+    const task = this.findOne(id);
+    this.tasks = this.tasks.filter((t) => t.id !== id);
     return task;
   }
 }

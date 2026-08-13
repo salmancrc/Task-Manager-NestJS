@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
@@ -27,6 +28,11 @@ export class TasksController {
   @Post()
   create(@Body() body: Task) {
     return this.taskService.create(body);
+  }
+
+  @Patch(':id')
+  update(@Param('id', ParseIntPipe) id: number, @Body() body: Partial<Task>) {
+    return this.taskService.update(id, body);
   }
 
   @Delete(':id')
