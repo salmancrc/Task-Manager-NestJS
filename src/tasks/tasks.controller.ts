@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import type { Task } from './tasks.service';
 
@@ -9,6 +16,11 @@ export class TasksController {
   @Get()
   findAll() {
     return this.taskService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.taskService.findOne(id);
   }
 
   @Post()
