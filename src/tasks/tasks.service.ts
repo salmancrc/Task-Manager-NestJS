@@ -16,6 +16,31 @@ export class TasksService {
       title: 'Learn NestJS',
       completed: false,
     },
+    {
+      id: 2,
+      title: 'Build a REST API',
+      completed: false,
+    },
+    {
+      id: 3,
+      title: 'Practice TypeScript',
+      completed: false,
+    },
+    {
+      id: 4,
+      title: 'Learn PostgreSQL',
+      completed: false,
+    },
+    {
+      id: 5,
+      title: 'Create a Docker Project',
+      completed: false,
+    },
+    {
+      id: 6,
+      title: 'Study Authentication',
+      completed: false,
+    },
   ];
 
   findAll(): Task[] {
