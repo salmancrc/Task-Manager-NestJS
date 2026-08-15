@@ -35,8 +35,6 @@ export class TasksService {
 
   update(id: number, updateTask: Partial<Task>): Task {
     const task = this.findOne(id);
-    console.log('updateTask: ', updateTask);
-    console.log('task: ', task);
     Object.assign(task, updateTask);
     return task;
   }
