@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import type { Task } from './tasks.service';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './dto/create-task-dto';
+import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('tasks')
