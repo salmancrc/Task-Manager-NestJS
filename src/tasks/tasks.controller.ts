@@ -7,19 +7,21 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import type { Task } from './tasks.service';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private taskService: TasksService) {}
 
   @Get()
-  findAll() {
-    return this.taskService.findAll();
+  findAll(@Query() filterDto: GetTasksFilterDto) {
+    return this.taskService.findAll(filterDto);
   }
 
   @Get(':id')
