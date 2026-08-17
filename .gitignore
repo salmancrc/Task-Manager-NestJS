@@ -57,4 +57,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
 
-/generated/prisma
+# Prisma skills
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
