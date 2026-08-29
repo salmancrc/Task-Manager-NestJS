@@ -31,7 +31,7 @@ export class TasksController {
 
   @Post()
   create(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    return this.taskService.create(createTaskDto);
+    return this.taskService.create(createTaskDto, 1);
   }
 
   @Patch(':id')
