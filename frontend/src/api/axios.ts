@@ -13,6 +13,13 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('taskify_token')
+      if (window.location.pathname !== '/signin') {
+        window.location.href = '/signin'
+      }
+    }
+
     const message =
       error.response?.data?.message || error.message || 'Something went wrong'
     return Promise.reject(new Error(Array.isArray(message) ? message.join(', ') : message))
