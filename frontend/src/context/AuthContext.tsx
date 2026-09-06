@@ -1,44 +1,52 @@
-import {
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react";
-import apiClient from "../api/axios";
+import { useState, useEffect, type ReactNode } from "react";
+import { AuthContext } from "./auth"; // Where your context is exported
+import { getMe, logoutApi } from "../api/auth";
 
-const TOKEN_KEY = "taskify_token";
-
-import { AuthContext } from "./auth";
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() =>
-    localStorage.getItem(TOKEN_KEY),
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Keep axios Authorization header in sync with the token
   useEffect(() => {
-    if (token) {
-      apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } else {
-      delete apiClient.defaults.headers.common["Authorization"];
+    // Check if user has a valid cookie on load
+    const checkSession = async () => {
+      try {
+        await getMe();
+        setIsAuthenticated(true);
+      } catch {
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkSession();
+  }, []);
+
+  const login = () => {
+    setIsAuthenticated(true);
+  };
+
+  const logout = async () => {
+    try {
+      await logoutApi();
+    } catch (err) {
+      console.error(err);
     }
-  }, [token]);
-
-  const login = (newToken: string) => {
-    localStorage.setItem(TOKEN_KEY, newToken);
-    setToken(newToken);
+    setIsAuthenticated(false);
   };
 
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-950 text-white">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider
-      value={{ token, isAuthenticated: !!token, login, logout }}
+      value={{ token: null, isAuthenticated, login, logout }}
     >
       {children}
     </AuthContext.Provider>
   );
 }
-
-
