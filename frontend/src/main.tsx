@@ -17,13 +17,13 @@ const queryClient = new QueryClient({
 })
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+  <AuthProvider>
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
-  </StrictMode>,
+      </QueryClientProvider>
+    </StrictMode>
+  </AuthProvider>,
 )
