@@ -33,6 +33,12 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractToken(request: Request): string | undefined {
+    const cookieToken = request.cookies?.['taskify_token'];
+
+    if (typeof cookieToken === 'string') {
+      return cookieToken;
+    }
+
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
@@ -41,10 +47,10 @@ export class AuthGuard implements CanActivate {
 
     const [type, token] = authHeader.split(' ');
 
-    if (type !== 'Bearer' || !token) {
-      return undefined;
+    if (type === 'Bearer' && token) {
+      return token;
     }
 
-    return token;
+    return undefined;
   }
 }
