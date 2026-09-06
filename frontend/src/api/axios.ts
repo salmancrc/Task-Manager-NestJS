@@ -1,29 +1,28 @@
-import axios from 'axios'
+import axios from "axios";
 
-// Single shared Axios instance — all requests go through here
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: "http://localhost:3000",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-})
+  withCredentials: true, // This tells the browser to send cookies!
+});
 
-// Global response interceptor — handle errors in one place
-// Later you can add 401 (unauthorized) redirect logic here for JWT auth
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('taskify_token')
-      if (window.location.pathname !== '/signin') {
-        window.location.href = '/signin'
+      // Just redirect, the cookie is either gone or expired
+      if (window.location.pathname !== "/signin") {
+        window.location.href = "/signin";
       }
     }
-
     const message =
-      error.response?.data?.message || error.message || 'Something went wrong'
-    return Promise.reject(new Error(Array.isArray(message) ? message.join(', ') : message))
+      error.response?.data?.message || error.message || "Something went wrong";
+    return Promise.reject(
+      new Error(Array.isArray(message) ? message.join(", ") : message),
+    );
   },
-)
+);
 
-export default apiClient
+export default apiClient;
