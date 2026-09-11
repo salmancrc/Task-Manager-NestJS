@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAuthDto } from './dto/create.auth.dto';
 import * as bcrypt from 'bcrypt';
 import { SigninDto } from './dto/signin.dto';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +13,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signup(createAuthDto: CreateAuthDto) {
+  async signup(createAuthDto: CreateAuthDto): Promise<UserEntity> {
     const hashedPassword = await bcrypt.hash(createAuthDto.password, 10);
 
     const user = await this.prisma.user.create({
@@ -23,11 +24,7 @@ export class AuthService {
       },
     });
 
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-    };
+    return new UserEntity(user);
   }
 
   async signin(signinDto: SigninDto) {
