@@ -6,6 +6,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
 model User {
   id          Int           @id @default(autoincrement())
   email       String        @unique
@@ -18,6 +23,20 @@ model Task {
   id          Int           @id @default(autoincrement())
   title       String
   completed   Boolean       @default(false)
+  priority    TaskPriority  @default(MEDIUM)
+  dueDate     DateTime?
+  deletedAt   DateTime?
+
   userId      Int
-  user        User         @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+
+  tags        Tag[]
+
+  @@index([userId, deletedAt])
+}
+
+model Tag {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  tasks       Task[]
 }
