@@ -48,10 +48,19 @@ export class TasksService {
       data: {
         title: createTaskDto.title,
         completed: createTaskDto.completed ?? false,
+        priority: createTaskDto.priority,
+        dueDate: createTaskDto.dueDate,
         user: {
           connect: {
             id: userId,
           },
+        },
+        tags: {
+          connectOrCreate:
+            createTaskDto.tags?.map((name) => ({
+              where: { name },
+              create: { name },
+            })) ?? [],
         },
       },
     });
@@ -64,9 +73,22 @@ export class TasksService {
   ): Promise<Task> {
     await this.findOne(userId, id);
 
+    const { tags, ...taskData } = updateTaskDto;
+
     return this.prisma.task.update({
       where: { id },
-      data: updateTaskDto,
+      data: {
+        ...taskData,
+        ...(tags !== undefined && {
+          tags: {
+            set: [],
+            connectOrCreate: tags?.map((name) => ({
+              where: { name },
+              create: { name },
+            })),
+          },
+        }),
+      },
     });
   }
 
