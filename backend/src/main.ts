@@ -26,7 +26,6 @@ async function bootstrap() {
   );
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const document = SwaggerModule.createDocument(app, {
     openapi: '3.0.0',
     info: {
@@ -43,7 +42,6 @@ async function bootstrap() {
       },
     },
   });
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
