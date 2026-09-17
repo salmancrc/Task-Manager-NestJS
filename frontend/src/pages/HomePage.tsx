@@ -36,7 +36,7 @@ export function HomePage() {
 
   // Fetch tasks using React Query
   const { data: tasks, isLoading, isError } = useTasks(filters)
-  const { data: deletedTasks, isLoading: isTrashLoading, isError: isTrashError } = useDeletedTasks(filters)
+  const { data: deletedTasks, isLoading: isTrashLoading, isError: isTrashError } = useDeletedTasks(filters, showTrash)
   
   // Delete mutation
   const deleteTask = useDeleteTask()
