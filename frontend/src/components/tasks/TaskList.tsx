@@ -9,9 +9,10 @@ interface TaskListProps {
   isError: boolean
   onEdit: (task: Task) => void
   onDelete: (task: Task) => void
+  onRestore?: (task: Task) => void
 }
 
-export function TaskList({ tasks, isLoading, isError, onEdit, onDelete }: TaskListProps) {
+export function TaskList({ tasks, isLoading, isError, onEdit, onDelete, onRestore }: TaskListProps) {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center rounded-2xl border border-gray-800 border-dashed bg-gray-900/20">
@@ -43,7 +44,7 @@ export function TaskList({ tasks, isLoading, isError, onEdit, onDelete }: TaskLi
   return (
     <div className="flex flex-col gap-3">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} />
+        <TaskCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} onRestore={onRestore} />
       ))}
     </div>
   )

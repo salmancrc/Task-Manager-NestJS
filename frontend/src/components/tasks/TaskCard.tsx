@@ -7,14 +7,21 @@ interface TaskCardProps {
   task: Task
   onEdit: (task: Task) => void
   onDelete: (task: Task) => void
+  onRestore?: (task: Task) => void
 }
 
-export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+export function TaskCard({ task, onEdit, onDelete, onRestore }: TaskCardProps) {
   const updateTask = useUpdateTask()
 
   // Quick toggle: click the checkbox to flip completed status without opening the modal
   const handleToggle = () => {
     updateTask.mutate({ id: task.id, data: { completed: !task.completed } })
+  }
+
+  const priorityStyles = {
+    LOW: 'bg-sky-500/10 text-sky-300 ring-sky-500/20',
+    MEDIUM: 'bg-amber-500/10 text-amber-300 ring-amber-500/20',
+    HIGH: 'bg-rose-500/10 text-rose-300 ring-rose-500/20',
   }
 
   return (
@@ -36,26 +43,49 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
         )}
       </button>
 
-      {/* Task title */}
-      <span
-        className={`flex-1 text-sm font-medium transition-colors ${
-          task.completed ? 'text-gray-500 line-through' : 'text-gray-100'
-        }`}
-      >
-        {task.title}
-      </span>
+      <div className="min-w-0 flex-1">
+        <span
+          className={`block truncate text-sm font-medium transition-colors ${
+            task.completed ? 'text-gray-500 line-through' : 'text-gray-100'
+          }`}
+        >
+          {task.title}
+        </span>
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${priorityStyles[task.priority ?? 'MEDIUM']}`}>
+            {(task.priority ?? 'MEDIUM').charAt(0) + (task.priority ?? 'MEDIUM').slice(1).toLowerCase()}
+          </span>
+          {task.dueDate && (
+            <span className="text-xs text-gray-500">
+              Due {new Date(task.dueDate).toLocaleDateString()}
+            </span>
+          )}
+          {(task.tags ?? []).map((tag) => (
+            <span key={tag.id} className="rounded-full bg-gray-800 px-2 py-0.5 text-[11px] text-gray-400">
+              #{tag.name}
+            </span>
+          ))}
+        </div>
+      </div>
 
-      {/* Status badge */}
       <Badge completed={task.completed} />
 
       {/* Action buttons — only visible on hover */}
-      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        <Button variant="ghost" onClick={() => onEdit(task)} className="!px-2.5 !py-1.5 text-xs">
-          Edit
-        </Button>
-        <Button variant="danger" onClick={() => onDelete(task)} className="!px-2.5 !py-1.5 text-xs">
-          Delete
-        </Button>
+      <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+        {onRestore ? (
+          <Button variant="success" onClick={() => onRestore(task)} className="!px-2.5 !py-1.5 text-xs">
+            Restore
+          </Button>
+        ) : (
+          <>
+            <Button variant="ghost" onClick={() => onEdit(task)} className="!px-2.5 !py-1.5 text-xs">
+              Edit
+            </Button>
+            <Button variant="danger" onClick={() => onDelete(task)} className="!px-2.5 !py-1.5 text-xs">
+              Delete
+            </Button>
+          </>
+        )}
       </div>
     </div>
   )

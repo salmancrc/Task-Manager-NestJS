@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '../ui/Button'
-import type { Task, CreateTaskDto, UpdateTaskDto } from '../../types/task'
+import type { Task, CreateTaskDto, UpdateTaskDto, TaskPriority } from '../../types/task'
 
 interface TaskFormProps {
   task?: Task | null // If provided, we are in edit mode
@@ -12,14 +12,10 @@ interface TaskFormProps {
 export function TaskForm({ task, onSubmit, onCancel, isSubmitting = false }: TaskFormProps) {
   const [title, setTitle] = useState(task?.title ?? '')
   const [completed, setCompleted] = useState(task?.completed ?? false)
+  const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? 'MEDIUM')
+  const [dueDate, setDueDate] = useState(task?.dueDate?.slice(0, 10) ?? '')
+  const [tags, setTags] = useState(task?.tags?.map((tag) => tag.name).join(', ') ?? '')
   const [error, setError] = useState('')
-
-  // Sync form fields when a different task is passed in (e.g. switching edits)
-  useEffect(() => {
-    setTitle(task?.title ?? '')
-    setCompleted(task?.completed ?? false)
-    setError('')
-  }, [task])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,7 +23,18 @@ export function TaskForm({ task, onSubmit, onCancel, isSubmitting = false }: Tas
       setError('Task title is required')
       return
     }
-    onSubmit({ title: title.trim(), completed })
+    const tagNames = tags
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+
+    onSubmit({
+      title: title.trim(),
+      completed,
+      priority,
+      dueDate: dueDate ? `${dueDate}T23:59:59.999Z` : null,
+      tags: tagNames,
+    })
   }
 
   return (
@@ -54,6 +61,52 @@ export function TaskForm({ task, onSubmit, onCancel, isSubmitting = false }: Tas
           autoFocus
         />
         {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="task-priority" className="mb-1.5 block text-sm font-medium text-gray-300">
+            Priority
+          </label>
+          <select
+            id="task-priority"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value as TaskPriority)}
+            className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-2.5 text-sm text-white outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          >
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="task-due-date" className="mb-1.5 block text-sm font-medium text-gray-300">
+            Due date
+          </label>
+          <input
+            id="task-due-date"
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-2.5 text-sm text-white outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="task-tags" className="mb-1.5 block text-sm font-medium text-gray-300">
+          Tags
+        </label>
+        <input
+          id="task-tags"
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="e.g. work, urgent"
+          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+        />
+        <p className="mt-1.5 text-xs text-gray-500">Separate multiple tags with commas.</p>
       </div>
 
       {/* Completed toggle */}

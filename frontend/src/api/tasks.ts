@@ -1,13 +1,21 @@
 import apiClient from './axios'
 import type { Task, CreateTaskDto, UpdateTaskDto, GetTasksParams } from '../types/task'
 
-// Get all tasks — supports search, status filter, and pagination via query params
+// Get all tasks with search, filters, and pagination.
 export const getTasks = async (params: GetTasksParams): Promise<Task[]> => {
   // Remove empty string params so they don't get sent to the API
   const cleanParams = Object.fromEntries(
     Object.entries(params).filter(([, v]) => v !== '' && v !== undefined),
   )
   const res = await apiClient.get<Task[]>('/tasks', { params: cleanParams })
+  return res.data
+}
+
+export const getDeletedTasks = async (params: GetTasksParams): Promise<Task[]> => {
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== '' && v !== undefined),
+  )
+  const res = await apiClient.get<Task[]>('/tasks/deleted', { params: cleanParams })
   return res.data
 }
 
@@ -23,14 +31,19 @@ export const createTask = async (data: CreateTaskDto): Promise<Task> => {
   return res.data
 }
 
-// Partially update an existing task (title or completed status)
+// Partially update an existing task.
 export const updateTask = async (id: number, data: UpdateTaskDto): Promise<Task> => {
   const res = await apiClient.patch<Task>(`/tasks/${id}`, data)
   return res.data
 }
 
-// Delete a task and return the deleted task data
+// Soft-delete a task and return the deleted task data.
 export const deleteTask = async (id: number): Promise<Task> => {
   const res = await apiClient.delete<Task>(`/tasks/${id}`)
+  return res.data
+}
+
+export const restoreTask = async (id: number): Promise<Task> => {
+  const res = await apiClient.patch<Task>(`/tasks/${id}/restore`)
   return res.data
 }

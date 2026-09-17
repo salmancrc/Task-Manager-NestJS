@@ -55,6 +55,23 @@ export function TaskFilters({ filters, onChange }: TaskFiltersProps) {
         <option value="pending">Pending</option>
         <option value="completed">Completed</option>
       </select>
+
+      <select
+        value={filters.priority ?? ''}
+        onChange={(e) =>
+          onChange({
+            ...filters,
+            priority: e.target.value as GetTasksParams['priority'],
+            page: 1,
+          })
+        }
+        className="rounded-lg border border-gray-700 bg-gray-800/50 px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:w-36"
+      >
+        <option value="">All priorities</option>
+        <option value="HIGH">High priority</option>
+        <option value="MEDIUM">Medium priority</option>
+        <option value="LOW">Low priority</option>
+      </select>
     </div>
   )
 }
