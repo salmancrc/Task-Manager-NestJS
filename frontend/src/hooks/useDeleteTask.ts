@@ -7,6 +7,7 @@ export function useDeleteTask() {
     mutationFn: (id: number) => deleteTask(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['deleted-tasks'] })
     },
   })
 }
