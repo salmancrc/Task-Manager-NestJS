@@ -1,5 +1,6 @@
 import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { TaskPriority } from '@prisma/client';
 
 export enum TaskStatus {
   COMPLETED = 'completed',
@@ -12,8 +13,16 @@ export class GetTasksFilterDto {
   status?: TaskStatus;
 
   @IsOptional()
+  @IsEnum(TaskPriority)
+  priority?: TaskPriority;
+
+  @IsOptional()
   @IsString()
   search?: string;
+
+  @IsOptional()
+  @IsString()
+  tag?: string;
 
   @IsOptional()
   @Type(() => Number)

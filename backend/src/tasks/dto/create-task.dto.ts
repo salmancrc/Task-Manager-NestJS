@@ -9,28 +9,23 @@ import {
   IsString,
 } from 'class-validator';
 
-export enum TaskPriorityDto {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-}
-
 export class CreateTaskDto {
   @IsString()
   @IsNotEmpty()
   title: string;
 
-  @IsEnum(TaskPriorityDto)
+  @IsEnum(TaskPriority)
   @IsOptional()
-  priority?: TaskPriorityDto;
+  priority?: TaskPriority;
 
   @IsDateString()
   @IsOptional()
-  dueDate?: string;
+  dueDate?: string | null;
 
   @IsArray()
   @IsOptional()
   @IsString({ each: true })
+  @IsNotEmpty({ each: true })
   tags?: string[];
 
   @IsBoolean()

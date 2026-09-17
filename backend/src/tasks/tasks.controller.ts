@@ -32,6 +32,18 @@ export class TasksController {
     return this.taskService.findAll(user.sub, filterDto);
   }
 
+  @Get('deleted')
+  findDeleted(
+    @GetUser() user: JwtPayload,
+    @Query() filterDto: GetTasksFilterDto,
+  ): Promise<Task[]> {
+    return this.taskService.findDeleted(
+      user.sub,
+      filterDto.page,
+      filterDto.limit,
+    );
+  }
+
   @Get(':id')
   findOne(
     @GetUser() user: JwtPayload,
@@ -55,6 +67,14 @@ export class TasksController {
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
     return this.taskService.update(id, user.sub, updateTaskDto);
+  }
+
+  @Patch(':id/restore')
+  restore(
+    @GetUser() user: JwtPayload,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Task> {
+    return this.taskService.restore(id, user.sub);
   }
 
   @Delete(':id')
