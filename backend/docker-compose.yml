@@ -1,16 +1,10 @@
 services:
-  task-manager-db:
-    image: postgres:latest
-    container_name: task-manager-db
+  backend:
+    build: .
+    container_name: task-manager-backend
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: taskmanager
     ports:
-      - '5432:5432'
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-volumes:
-  pgdata:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgresql://postgres:secret@host.docker.internal:5432/taskmanager?schema=public
+      JWT_SECRET: your-super-secret-key-change-this
