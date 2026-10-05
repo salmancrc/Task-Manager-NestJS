@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { validateEnvironment } from './config/env.validation';
 
 @Module({
   imports: [
