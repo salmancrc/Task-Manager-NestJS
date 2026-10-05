@@ -29,6 +29,10 @@ RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
+# Generate Prisma Client in the final image so pnpm's production install uses
+# the correct virtual-store path.
+RUN pnpm prisma generate --schema=prisma/schema.prisma
+
 EXPOSE 3000
 
 CMD ["node", "dist/src/main.js"]
