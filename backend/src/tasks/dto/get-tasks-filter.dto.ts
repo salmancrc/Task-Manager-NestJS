@@ -1,4 +1,12 @@
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { TaskPriority } from '@prisma/client';
 
@@ -18,10 +26,12 @@ export class GetTasksFilterDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(200)
   search?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(40)
   tag?: string;
 
   @IsOptional()
@@ -34,5 +44,6 @@ export class GetTasksFilterDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(100)
   limit?: number = 10;
 }
