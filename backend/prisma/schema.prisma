@@ -11,32 +11,46 @@ enum TaskPriority {
   MEDIUM
   HIGH
 }
+
 model User {
-  id          Int           @id @default(autoincrement())
-  email       String        @unique
-  password    String        // <-- store the hashed password
-  name        String?      
-  tasks       Task[]
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String // <-- store the hashed password
+  name          String?
+  tasks         Task[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Task {
-  id          Int           @id @default(autoincrement())
-  title       String
-  completed   Boolean       @default(false)
-  priority    TaskPriority  @default(MEDIUM)
-  dueDate     DateTime?
-  deletedAt   DateTime?
+  id        Int          @id @default(autoincrement())
+  title     String
+  completed Boolean      @default(false)
+  priority  TaskPriority @default(MEDIUM)
+  dueDate   DateTime?
+  deletedAt DateTime?
 
-  userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
-  tags        Tag[]
+  tags Tag[]
 
   @@index([userId, deletedAt])
 }
 
 model Tag {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique
-  tasks       Task[]
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  tasks Task[]
 }
