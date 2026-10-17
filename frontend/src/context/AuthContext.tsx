@@ -7,7 +7,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user has a valid cookie on load
     const checkSession = async () => {
       try {
         await getMe();
