@@ -14,6 +14,7 @@ import { CreateAuthDto } from './dto/create.auth.dto';
 import { AuthService } from './auth.service';
 import { SigninDto } from './dto/signin.dto';
 import { AuthGuard } from './auth.guard';
+import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 
 const ACCESS_COOKIE = 'taskify_token';
@@ -23,11 +24,13 @@ const REFRESH_COOKIE = 'taskify_refresh';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('signup')
   signup(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.signup(createAuthDto);
   }
 
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   async signin(

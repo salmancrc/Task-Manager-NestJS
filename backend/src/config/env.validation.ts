@@ -39,10 +39,15 @@ export function validateEnvironment(config: Record<string, unknown>) {
     const messages = errors.flatMap((error) =>
       Object.values(error.constraints ?? {}),
     );
-    throw new Error(`Invalid environment configuration: ${messages.join('; ')}`);
+    throw new Error(
+      `Invalid environment configuration: ${messages.join('; ')}`,
+    );
   }
 
-  if (environment.NODE_ENV === 'production' && environment.JWT_SECRET.length < 32) {
+  if (
+    environment.NODE_ENV === 'production' &&
+    environment.JWT_SECRET.length < 32
+  ) {
     throw new Error('JWT_SECRET must be at least 32 characters in production');
   }
 

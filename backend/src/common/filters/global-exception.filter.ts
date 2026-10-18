@@ -17,7 +17,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const status =
+    const status: HttpStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -47,6 +47,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       this.logger.error(
         exception instanceof Error ? exception.stack : String(exception),
       );
+    }
+
+    if (status === HttpStatus.TOO_MANY_REQUESTS) {
+      const retryAfter = response.getHeader('Retry-After') ?? '60';
+      response.setHeader('Retry-After', String(retryAfter));
     }
 
     response.status(status).json({
