@@ -8,6 +8,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const checkSession = async () => {
+      const publicPaths = ["/signin", "/signup"];
+      if (publicPaths.includes(window.location.pathname)) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         await getMe();
         setIsAuthenticated(true);
