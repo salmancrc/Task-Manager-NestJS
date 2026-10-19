@@ -1,13 +1,21 @@
 import { useAuth } from '../../context/auth'
+import { useToast } from '../../context/toast'
 import { useNavigate } from 'react-router-dom'
 
 export function Header() {
   const { logout, isAuthenticated } = useAuth()
+  const { showToast } = useToast()
   const navigate = useNavigate()
 
-  const handleLogout = () => {
-    logout()
-    navigate('/signin')
+  const handleLogout = async () => {
+    try {
+      await logout()
+      showToast('Logged out successfully', 'success')
+    } catch {
+      showToast('Logged out locally, but the server could not be reached.', 'error')
+    } finally {
+      navigate('/signin')
+    }
   }
 
   return (

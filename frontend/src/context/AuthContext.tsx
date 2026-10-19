@@ -33,10 +33,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await logoutApi();
-    } catch (err) {
-      console.error(err);
+    } finally {
+      setIsAuthenticated(false);
     }
-    setIsAuthenticated(false);
   };
 
   if (isLoading) {

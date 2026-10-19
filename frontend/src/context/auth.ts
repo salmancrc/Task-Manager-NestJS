@@ -4,7 +4,7 @@ export interface AuthContextValue {
   token: string | null;
   isAuthenticated: boolean;
   login: () => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
