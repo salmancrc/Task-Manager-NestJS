@@ -2,9 +2,11 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signin } from "../api/auth";
 import { useAuth } from "../context/auth";
+import { useToast } from "../context/toast";
 
 export function SigninPage() {
   const { login } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -20,6 +22,7 @@ export function SigninPage() {
     try {
       await signin({ email, password });
       login();
+      showToast("Logged in successfully", "success");
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");

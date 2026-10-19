@@ -4,11 +4,11 @@ import { TaskFilters } from '../components/tasks/TaskFilters'
 import { TaskList } from '../components/tasks/TaskList'
 import { Pagination } from '../components/tasks/Pagination'
 import { TaskModal } from '../components/tasks/TaskModal'
-import { ToastContainer, type ToastType } from '../components/ui/Toast'
 import { useTasks } from '../hooks/useTasks'
 import { useDeleteTask } from '../hooks/useDeleteTask'
 import { useDeletedTasks } from '../hooks/useDeletedTasks'
 import { useRestoreTask } from '../hooks/useRestoreTask'
+import { useToast } from '../context/toast'
 import type { Task, GetTasksParams } from '../types/task'
 
 export function HomePage() {
@@ -23,16 +23,8 @@ export function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [showTrash, setShowTrash] = useState(false)
-  
-  // Toast state management
-  const [toasts, setToasts] = useState<{ id: number; message: string; type: ToastType }[]>([])
-  
-  const showToast = (message: string, type: ToastType = 'success') => {
-    setToasts((prev) => [...prev, { id: Date.now(), message, type }])
-  }
-  const removeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
+
+  const { showToast } = useToast()
 
   // Fetch tasks using React Query
   const { data: tasks, isLoading, isError } = useTasks(filters)
@@ -47,7 +39,7 @@ export function HomePage() {
     
     try {
       await deleteTask.mutateAsync(task.id)
-      showToast('Task deleted successfully')
+      showToast('Task deleted successfully', 'success')
       
       // If we deleted the last item on the page, go back a page
       if (tasks?.length === 1 && filters.page! > 1) {
@@ -127,8 +119,6 @@ export function HomePage() {
         onError={(msg) => showToast(msg, 'error')}
       />
 
-      {/* Toast Notifications */}
-      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   )
 }
