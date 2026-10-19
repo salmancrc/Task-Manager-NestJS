@@ -2,6 +2,7 @@ import { plainToInstance, Type } from 'class-transformer';
 import {
   IsIn,
   IsInt,
+  IsNotEmpty,
   IsString,
   Matches,
   Max,
@@ -21,10 +22,14 @@ class EnvironmentVariables {
   PORT = 3000;
 
   @IsString()
-  @Matches(/^postgres(?:ql)?:\/\/.+/)
+  @IsNotEmpty()
+  @Matches(/^postgres(?:ql)?:\/\/.+/, {
+    message: 'DATABASE_URL must be a valid PostgreSQL connection string',
+  })
   DATABASE_URL!: string;
 
   @IsString()
+  @IsNotEmpty()
   @MinLength(1)
   JWT_SECRET!: string;
 }
@@ -33,7 +38,7 @@ export function validateEnvironment(config: Record<string, unknown>) {
   const environment = plainToInstance(EnvironmentVariables, config, {
     enableImplicitConversion: true,
   });
-  const errors = validateSync(environment);
+  const errors = validateSync(environment, { skipMissingProperties: false });
 
   if (errors.length > 0) {
     const messages = errors.flatMap((error) =>
@@ -51,5 +56,5 @@ export function validateEnvironment(config: Record<string, unknown>) {
     throw new Error('JWT_SECRET must be at least 32 characters in production');
   }
 
-  return { ...config, NODE_ENV: environment.NODE_ENV, PORT: environment.PORT };
+  return { ...config, ...environment };
 }
