@@ -2,6 +2,7 @@ import { Navigate, Routes, Route } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
 import { HomePage } from './pages/HomePage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { ErrorPage } from './pages/ErrorPage'
 import { SigninPage } from './pages/SigninPage'
 import { SignupPage } from './pages/SignupPage'
 import { useAuth } from './context/auth'
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/signin" element={<SigninPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+        <Route path="/error" element={<ErrorPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
