@@ -28,7 +28,9 @@ export class TasksService {
       completed:
         status !== undefined ? status === TaskStatus.COMPLETED : undefined,
 
-      title: search ? { contains: search, mode: 'insensitive' as const } : undefined,
+      title: search
+        ? { contains: search, mode: 'insensitive' as const }
+        : undefined,
       tags: tag ? { some: { name: tag } } : undefined,
     };
 

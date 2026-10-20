@@ -14,10 +14,7 @@ describe('TasksService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        TasksService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [TasksService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get<TasksService>(TasksService);
@@ -32,9 +29,7 @@ describe('TasksService', () => {
     prisma.task.findMany.mockResolvedValue(tasks);
     prisma.task.count.mockResolvedValue(23);
 
-    await expect(
-      service.findAll(7, { page: 2, limit: 10 }),
-    ).resolves.toEqual({
+    await expect(service.findAll(7, { page: 2, limit: 10 })).resolves.toEqual({
       data: tasks,
       total: 23,
       page: 2,
