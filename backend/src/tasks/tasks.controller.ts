@@ -15,6 +15,7 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
+import { PaginatedTasksResponse } from './dto/paginated-tasks.response';
 import { Task } from '@prisma/client';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import type { JwtPayload } from 'src/auth/interfaces/jwt.payload.interface';
@@ -28,7 +29,7 @@ export class TasksController {
   findAll(
     @GetUser() user: JwtPayload,
     @Query() filterDto: GetTasksFilterDto,
-  ): Promise<Task[]> {
+  ): Promise<PaginatedTasksResponse> {
     return this.taskService.findAll(user.sub, filterDto);
   }
 
@@ -36,7 +37,7 @@ export class TasksController {
   findDeleted(
     @GetUser() user: JwtPayload,
     @Query() filterDto: GetTasksFilterDto,
-  ): Promise<Task[]> {
+  ): Promise<PaginatedTasksResponse> {
     return this.taskService.findDeleted(
       user.sub,
       filterDto.page,

@@ -1,21 +1,21 @@
 import apiClient from './axios'
-import type { Task, CreateTaskDto, UpdateTaskDto, GetTasksParams } from '../types/task'
+import type { Task, CreateTaskDto, UpdateTaskDto, GetTasksParams, PaginatedResponse } from '../types/task'
 
 // Get all tasks with search, filters, and pagination.
-export const getTasks = async (params: GetTasksParams): Promise<Task[]> => {
+export const getTasks = async (params: GetTasksParams): Promise<PaginatedResponse<Task>> => {
   // Remove empty string params so they don't get sent to the API
   const cleanParams = Object.fromEntries(
     Object.entries(params).filter(([, v]) => v !== '' && v !== undefined),
   )
-  const res = await apiClient.get<Task[]>('/tasks', { params: cleanParams })
+  const res = await apiClient.get<PaginatedResponse<Task>>('/tasks', { params: cleanParams })
   return res.data
 }
 
-export const getDeletedTasks = async (params: GetTasksParams): Promise<Task[]> => {
+export const getDeletedTasks = async (params: GetTasksParams): Promise<PaginatedResponse<Task>> => {
   const cleanParams = Object.fromEntries(
     Object.entries(params).filter(([, v]) => v !== '' && v !== undefined),
   )
-  const res = await apiClient.get<Task[]>('/tasks/deleted', { params: cleanParams })
+  const res = await apiClient.get<PaginatedResponse<Task>>('/tasks/deleted', { params: cleanParams })
   return res.data
 }
 

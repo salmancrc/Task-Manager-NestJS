@@ -4,36 +4,45 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { Task } from '@prisma/client';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { GetTasksFilterDto, TaskStatus } from './dto/get-tasks-filter.dto';
+import { PaginatedTasksResponse } from './dto/paginated-tasks.response';
 
 @Injectable()
 export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(userId: number, filterDto: GetTasksFilterDto): Promise<Task[]> {
+  async findAll(
+    userId: number,
+    filterDto: GetTasksFilterDto,
+  ): Promise<PaginatedTasksResponse> {
     const { status, priority, search, tag, page = 1, limit = 10 } = filterDto;
 
-    return this.prisma.task.findMany({
-      where: {
-        userId,
-        deletedAt: null,
-        priority,
-        completed:
-          status !== undefined ? status === TaskStatus.COMPLETED : undefined,
+    const where = {
+      userId,
+      deletedAt: null,
+      priority,
+      completed:
+        status !== undefined ? status === TaskStatus.COMPLETED : undefined,
 
-        title: search ? { contains: search, mode: 'insensitive' } : undefined,
-        tags: tag ? { some: { name: tag } } : undefined,
-      },
+      title: search ? { contains: search, mode: 'insensitive' as const } : undefined,
+      tags: tag ? { some: { name: tag } } : undefined,
+    };
 
-      include: { tags: true },
+    const [data, total] = await Promise.all([
+      this.prisma.task.findMany({
+        where,
+        include: { tags: true },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.task.count({ where }),
+    ]);
 
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findOne(userId: number, id: number): Promise<Task> {
@@ -117,14 +126,24 @@ export class TasksService {
     });
   }
 
-  async findDeleted(userId: number, page = 1, limit = 10): Promise<Task[]> {
-    return this.prisma.task.findMany({
-      where: { userId, deletedAt: { not: null } },
-      include: { tags: true },
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { deletedAt: 'desc' },
-    });
+  async findDeleted(
+    userId: number,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedTasksResponse> {
+    const where = { userId, deletedAt: { not: null } };
+    const [data, total] = await Promise.all([
+      this.prisma.task.findMany({
+        where,
+        include: { tags: true },
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { deletedAt: 'desc' },
+      }),
+      this.prisma.task.count({ where }),
+    ]);
+
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async restore(id: number, userId: number): Promise<Task> {
