@@ -1,13 +1,13 @@
 interface PaginationProps {
   page: number
-  hasMore: boolean
+  totalPages: number
   onChange: (page: number) => void
 }
 
-export function Pagination({ page, hasMore, onChange }: PaginationProps) {
+export function Pagination({ page, totalPages, onChange }: PaginationProps) {
   return (
     <div className="flex items-center justify-between border-t border-gray-800 pt-4">
-      <span className="text-sm text-gray-500">Page {page}</span>
+      <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
       <div className="flex gap-2">
         <button
           onClick={() => onChange(page - 1)}
@@ -21,7 +21,7 @@ export function Pagination({ page, hasMore, onChange }: PaginationProps) {
         </button>
         <button
           onClick={() => onChange(page + 1)}
-          disabled={!hasMore}
+          disabled={page >= totalPages}
           className="flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-300 transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Next

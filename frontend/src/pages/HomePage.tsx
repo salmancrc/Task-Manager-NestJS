@@ -42,7 +42,7 @@ export function HomePage() {
       showToast('Task deleted successfully', 'success')
       
       // If we deleted the last item on the page, go back a page
-      if (tasks?.length === 1 && filters.page! > 1) {
+      if (tasks?.data.length === 1 && filters.page! > 1) {
         setFilters((prev) => ({ ...prev, page: prev.page! - 1 }))
       }
     } catch {
@@ -54,6 +54,9 @@ export function HomePage() {
     try {
       await restoreTask.mutateAsync(task.id)
       showToast('Task restored successfully')
+      if (deletedTasks?.data.length === 1 && filters.page! > 1) {
+        setFilters((prev) => ({ ...prev, page: prev.page! - 1 }))
+      }
     } catch {
       showToast('Failed to restore task', 'error')
     }
@@ -68,7 +71,10 @@ export function HomePage() {
           <p className="mt-1 text-sm text-gray-500">{showTrash ? 'Restore tasks you deleted recently.' : 'Keep your work organized and moving.'}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" onClick={() => setShowTrash((current) => !current)}>
+          <Button variant="ghost" onClick={() => {
+            setShowTrash((current) => !current)
+            setFilters((prev) => ({ ...prev, page: 1 }))
+          }}>
             {showTrash ? 'Back to tasks' : 'Trash'}
           </Button>
           {!showTrash && (
@@ -86,7 +92,7 @@ export function HomePage() {
 
       {/* Main task list */}
       <TaskList
-        tasks={showTrash ? deletedTasks : tasks}
+        tasks={showTrash ? deletedTasks?.data : tasks?.data}
         isLoading={showTrash ? isTrashLoading : isLoading}
         isError={showTrash ? isTrashError : isError}
         onEdit={(task) => {
@@ -98,11 +104,22 @@ export function HomePage() {
       />
 
       {/* Pagination controls */}
-      {!showTrash && !isLoading && !isError && tasks && (
+      {showTrash &&
+        !isTrashLoading &&
+        !isTrashError &&
+        deletedTasks &&
+        deletedTasks.totalPages > 0 && (
         <Pagination
-          page={filters.page ?? 1}
-          hasMore={tasks.length === filters.limit}
-          onChange={(page) => setFilters({ ...filters, page })}
+          page={deletedTasks.page}
+          totalPages={deletedTasks.totalPages}
+          onChange={(page) => setFilters((prev) => ({ ...prev, page }))}
+        />
+      )}
+      {!showTrash && !isLoading && !isError && tasks && tasks.totalPages > 0 && (
+        <Pagination
+          page={tasks.page}
+          totalPages={tasks.totalPages}
+          onChange={(page) => setFilters((prev) => ({ ...prev, page }))}
         />
       )}
 
