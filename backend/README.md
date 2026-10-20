@@ -56,3 +56,36 @@ $ pnpm run test:e2e
 # test coverage
 $ pnpm run test:cov
 ```
+
+## Database migrations and seed data
+
+Create and review migrations during development, then commit the generated
+`prisma/migrations` directory:
+
+```bash
+pnpm exec prisma migrate dev --name describe_your_change
+```
+
+Apply committed migrations to an existing database with:
+
+```bash
+pnpm db:migrate:deploy
+```
+
+The Docker entrypoint runs `prisma migrate deploy` before starting the API. The
+container therefore needs a reachable `DATABASE_URL`; startup stops if a
+migration fails. Back up production databases before deploying schema changes.
+
+Seeding is an explicit, repeatable operation and does not run automatically in
+Docker or production startup. Set `SEED_USER_EMAIL` and `SEED_USER_PASSWORD`
+(at least 6 characters) in the environment, then run:
+
+```bash
+pnpm db:seed
+```
+
+The seed creates the configured user with a bcrypt-hashed password if that
+email does not already exist, then ensures three sample tasks exist for that
+user. Re-running it does not duplicate the user or sample tasks and does not
+change an existing user's password. Keep seed credentials out of source
+control.

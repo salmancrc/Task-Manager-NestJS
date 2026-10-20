@@ -28,6 +28,8 @@ RUN pnpm install --frozen-lockfile --prod
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY prisma.config.ts ./prisma.config.ts
+COPY entrypoint.sh ./entrypoint.sh
 
 # Generate Prisma Client in the final image so pnpm's production install uses
 # the correct virtual-store path.
@@ -35,4 +37,5 @@ RUN pnpm prisma generate --schema=prisma/schema.prisma
 
 EXPOSE 3000
 
+ENTRYPOINT ["sh", "./entrypoint.sh"]
 CMD ["node", "dist/src/main.js"]
