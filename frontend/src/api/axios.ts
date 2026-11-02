@@ -1,8 +1,13 @@
 import axios from "axios";
 import { PENDING_TOAST_STORAGE_KEY } from "../context/toast";
 
+const apiBaseUrl = import.meta.env.VITE_API_URL;
+if (import.meta.env.PROD && !apiBaseUrl) {
+  throw new Error("VITE_API_URL must be set when building for production");
+}
+
 const apiClient = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: apiBaseUrl || "http://localhost:3000",
   headers: {
     "Content-Type": "application/json",
   },

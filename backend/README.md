@@ -89,3 +89,20 @@ email does not already exist, then ensures three sample tasks exist for that
 user. Re-running it does not duplicate the user or sample tasks and does not
 change an existing user's password. Keep seed credentials out of source
 control.
+
+## Production frontend and API URLs
+
+The frontend reads its API origin from `VITE_API_URL` at build time. For local
+development it defaults to `http://localhost:3000`; for a deployed frontend,
+set it to the backend's public HTTPS origin before building.
+
+The backend uses `FRONTEND_URL` as its single allowed CORS origin and requires
+it in production. Set it to the deployed frontend's origin only (scheme and
+host, no path), for example `https://app.example.com`. CORS credentials remain
+enabled for the authentication cookies.
+
+Because the app uses `SameSite=Lax` cookies, host the frontend and API on the
+same site, such as `app.example.com` and `api.example.com`, and serve both over
+HTTPS in production. Configure `DATABASE_URL`, `JWT_SECRET`, and `FRONTEND_URL`
+as runtime environment variables; do not bake them into the image. The Docker
+Compose service reads these values from the backend `.env` file.

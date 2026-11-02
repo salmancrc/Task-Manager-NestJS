@@ -3,7 +3,9 @@ import {
   IsIn,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
+  IsUrl,
   Matches,
   Max,
   Min,
@@ -32,6 +34,10 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @MinLength(1)
   JWT_SECRET!: string;
+
+  @IsOptional()
+  @IsUrl({ protocols: ['http', 'https'], require_tld: false })
+  FRONTEND_URL?: string;
 }
 
 export function validateEnvironment(config: Record<string, unknown>) {
@@ -56,5 +62,20 @@ export function validateEnvironment(config: Record<string, unknown>) {
     throw new Error('JWT_SECRET must be at least 32 characters in production');
   }
 
-  return { ...config, ...environment };
+  if (environment.NODE_ENV === 'production' && !environment.FRONTEND_URL) {
+    throw new Error('FRONTEND_URL must be set in production');
+  }
+
+  const frontendUrl = new URL(
+    environment.FRONTEND_URL ?? 'http://localhost:5173',
+  );
+  if (frontendUrl.pathname !== '/' || frontendUrl.search || frontendUrl.hash) {
+    throw new Error('FRONTEND_URL must be an origin without a path or query');
+  }
+
+  return {
+    ...config,
+    ...environment,
+    FRONTEND_URL: frontendUrl.origin,
+  };
 }
