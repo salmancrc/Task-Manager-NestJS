@@ -25,6 +25,16 @@ class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  REDIS_HOST = 'localhost';
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  REDIS_PORT = 6379;
+
+  @IsString()
+  @IsNotEmpty()
   @Matches(/^postgres(?:ql)?:\/\/.+/, {
     message: 'DATABASE_URL must be a valid PostgreSQL connection string',
   })

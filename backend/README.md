@@ -31,6 +31,36 @@
 $ pnpm install
 ```
 
+## Run Redis locally
+
+Start Redis from the `backend` directory:
+
+```bash
+docker compose -f docker-compose.redis.yml up -d
+```
+
+Check that Redis is ready:
+
+```bash
+docker compose -f docker-compose.redis.yml exec redis redis-cli ping
+```
+
+The expected response is `PONG`. A backend running on your computer can reach
+Redis at `localhost:6379`. Redis data is stored in the `redis_data` Docker
+volume and survives container restarts.
+
+Stop Redis when you are done:
+
+```bash
+docker compose -f docker-compose.redis.yml stop
+```
+
+This starts Redis only; the application does not connect to or use Redis yet.
+The backend configuration defaults to `REDIS_HOST=localhost` and
+`REDIS_PORT=6379`. Override these environment variables when Redis runs at a
+different address. These settings prepare the backend configuration; Redis
+client integration is a separate step.
+
 ## Compile and run the project
 
 ```bash

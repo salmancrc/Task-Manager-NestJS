@@ -7,6 +7,33 @@ const requiredEnvironment = {
 };
 
 describe('validateEnvironment', () => {
+  it('defaults Redis connection settings for local development', () => {
+    const environment = validateEnvironment(requiredEnvironment);
+
+    expect(environment.REDIS_HOST).toBe('localhost');
+    expect(environment.REDIS_PORT).toBe(6379);
+  });
+
+  it('accepts custom Redis connection settings', () => {
+    const environment = validateEnvironment({
+      ...requiredEnvironment,
+      REDIS_HOST: 'redis.example.com',
+      REDIS_PORT: '6380',
+    });
+
+    expect(environment.REDIS_HOST).toBe('redis.example.com');
+    expect(environment.REDIS_PORT).toBe(6380);
+  });
+
+  it('rejects invalid Redis ports', () => {
+    expect(() =>
+      validateEnvironment({
+        ...requiredEnvironment,
+        REDIS_PORT: '65536',
+      }),
+    ).toThrow('Invalid environment configuration');
+  });
+
   it('defaults the frontend origin to localhost outside production', () => {
     expect(validateEnvironment(requiredEnvironment).FRONTEND_URL).toBe(
       'http://localhost:5173',
