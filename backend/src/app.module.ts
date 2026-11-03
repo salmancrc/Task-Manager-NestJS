@@ -9,6 +9,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { validateEnvironment } from './config/env.validation';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { validateEnvironment } from './config/env.validation';
     TasksModule,
     PrismaModule,
     AuthModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [

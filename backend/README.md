@@ -55,11 +55,11 @@ Stop Redis when you are done:
 docker compose -f docker-compose.redis.yml stop
 ```
 
-This starts Redis only; the application does not connect to or use Redis yet.
+This starts Redis only. Start the backend separately with `pnpm run start:dev`.
 The backend configuration defaults to `REDIS_HOST=localhost` and
 `REDIS_PORT=6379`. Override these environment variables when Redis runs at a
-different address. These settings prepare the backend configuration; Redis
-client integration is a separate step.
+different address. On startup, NestJS connects to Redis and checks the
+connection with `PING`; Redis should be running before you start the backend.
 
 ## Compile and run the project
 

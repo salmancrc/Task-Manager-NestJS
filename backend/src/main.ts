@@ -9,6 +9,7 @@ import { SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+  app.enableShutdownHooks();
 
   app.use(cookieParser());
 
