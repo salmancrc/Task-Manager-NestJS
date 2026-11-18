@@ -2,9 +2,11 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { Task } from '@prisma/client';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -13,7 +15,13 @@ import { PaginatedTasksResponse } from './dto/paginated-tasks.response';
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(TasksService.name);
+  private readonly listCacheTtlSeconds = 60;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+  ) {}
 
   async findAll(
     userId: number,
@@ -34,6 +42,29 @@ export class TasksService {
       tags: tag ? { some: { name: tag } } : undefined,
     };
 
+    const shouldCache =
+      status === undefined &&
+      priority === undefined &&
+      search === undefined &&
+      tag === undefined &&
+      page === 1 &&
+      limit === 10;
+    const cacheKey = `tasks:list:${userId}`;
+
+    if (shouldCache) {
+      const cached = await this.redis.get(cacheKey);
+      if (cached !== null) {
+        try {
+          return JSON.parse(cached) as PaginatedTasksResponse;
+        } catch {
+          this.logger.warn(
+            `Ignoring invalid task-list cache for user ${userId}`,
+          );
+          await this.redis.delete(cacheKey);
+        }
+      }
+    }
+
     const [data, total] = await Promise.all([
       this.prisma.task.findMany({
         where,
@@ -44,7 +75,23 @@ export class TasksService {
       this.prisma.task.count({ where }),
     ]);
 
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    const result = {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+
+    if (shouldCache) {
+      await this.redis.set(
+        cacheKey,
+        JSON.stringify(result),
+        this.listCacheTtlSeconds,
+      );
+    }
+
+    return result;
   }
 
   async findOne(userId: number, id: number): Promise<Task> {
@@ -64,7 +111,7 @@ export class TasksService {
   }
 
   async create(createTaskDto: CreateTaskDto, userId: number): Promise<Task> {
-    return this.prisma.task.create({
+    const task = await this.prisma.task.create({
       data: {
         title: createTaskDto.title,
         completed: createTaskDto.completed ?? false,
@@ -85,6 +132,8 @@ export class TasksService {
       },
       include: { tags: true },
     });
+    await this.invalidateTaskListCache(userId);
+    return task;
   }
 
   async update(
@@ -96,7 +145,7 @@ export class TasksService {
 
     const { tags, dueDate, ...taskData } = updateTaskDto;
 
-    return this.prisma.task.update({
+    const task = await this.prisma.task.update({
       where: { id },
       data: {
         ...taskData,
@@ -115,17 +164,21 @@ export class TasksService {
       },
       include: { tags: true },
     });
+    await this.invalidateTaskListCache(userId);
+    return task;
   }
 
   async remove(id: number, userId: number): Promise<Task> {
     await this.findOne(userId, id);
-    return this.prisma.task.update({
+    const task = await this.prisma.task.update({
       where: { id },
       data: {
         deletedAt: new Date(),
       },
       include: { tags: true },
     });
+    await this.invalidateTaskListCache(userId);
+    return task;
   }
 
   async findDeleted(
@@ -160,10 +213,16 @@ export class TasksService {
       throw new BadRequestException('Task is not deleted');
     }
 
-    return this.prisma.task.update({
+    const restoredTask = await this.prisma.task.update({
       where: { id },
       data: { deletedAt: null },
       include: { tags: true },
     });
+    await this.invalidateTaskListCache(userId);
+    return restoredTask;
+  }
+
+  private async invalidateTaskListCache(userId: number): Promise<void> {
+    await this.redis.delete(`tasks:list:${userId}`);
   }
 }

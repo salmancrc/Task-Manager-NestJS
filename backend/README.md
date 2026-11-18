@@ -61,6 +61,16 @@ The backend configuration defaults to `REDIS_HOST=localhost` and
 different address. On startup, NestJS connects to Redis and checks the
 connection with `PING`; Redis should be running before you start the backend.
 
+The injectable `RedisService` provides basic string operations: `set(key,
+value, ttlSeconds?)` stores a value and optionally expires it after the given
+number of seconds, `get(key)` returns the value or `null` if it is missing, and
+`delete(key)` removes the key and returns the number of keys deleted.
+
+The task service demonstrates caching: each user's default first page of tasks
+is cached for 60 seconds. Filtered or paginated requests go directly to the
+database. Creating, updating, deleting, or restoring a task clears that user's
+cached default list.
+
 ## Compile and run the project
 
 ```bash
