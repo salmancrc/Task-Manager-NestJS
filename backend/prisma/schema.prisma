@@ -12,6 +12,11 @@ enum TaskPriority {
   HIGH
 }
 
+enum ReminderType {
+  DUE_SOON
+  OVERDUE
+}
+
 model User {
   id            Int            @id @default(autoincrement())
   email         String         @unique
@@ -19,6 +24,7 @@ model User {
   name          String?
   tasks         Task[]
   refreshTokens RefreshToken[]
+  reminders     Reminder[]
 }
 
 model RefreshToken {
@@ -44,9 +50,28 @@ model Task {
   userId Int
   user   User @relation(fields: [userId], references: [id])
 
-  tags Tag[]
+  tags      Tag[]
+  reminders Reminder[]
 
   @@index([userId, deletedAt])
+}
+
+model Reminder {
+  id        Int          @id @default(autoincrement())
+  type      ReminderType
+  dueAt     DateTime
+  readAt    DateTime?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId])
+  @@index([userId, readAt, createdAt])
 }
 
 model Tag {
